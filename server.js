@@ -9,6 +9,11 @@ app.use((req, res, next) => {
   next();
 });
 
+const mid = (req, res, next) => {
+  console.log("Ok, héros ajouté");
+  next();
+};
+
 const superheroes = [
   {
     name: "Iron Man",
@@ -52,12 +57,22 @@ app.get("/heroes/:name", (req, res) => {
   res.json(hero);
 });
 
-// Get heroes powers
+// Get hero's powers
 app.get("/heroes/:name/powers", (req, res) => {
   const powers = superheroes.find((hero) => {
     return req.params.name === hero.name;
   });
   res.json(powers.power);
+});
+
+// Add hero to list of superheroes
+app.post("/heroes", mid, (req, res) => {
+  superheroes.push({
+    // id: superheroes.length + 1,
+    name: req.body.name,
+    power: [req.body.power],
+  });
+  res.json(superheroes);
 });
 
 // ERROR
