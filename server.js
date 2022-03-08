@@ -39,15 +39,25 @@ const superheroes = [
   },
 ];
 
+// All heroes
 app.get("/heroes", (_req, res) => {
   res.json(superheroes);
 });
 
+// Get heroes by name
 app.get("/heroes/:name", (req, res) => {
   const hero = superheroes.find((hero) => {
     return req.params.name === hero.name;
   });
   res.json(hero);
+});
+
+// Get heroes powers
+app.get("/heroes/:name/powers", (req, res) => {
+  const powers = superheroes.find((hero) => {
+    return req.params.name === hero.name;
+  });
+  res.json(powers.power);
 });
 
 // ERROR
