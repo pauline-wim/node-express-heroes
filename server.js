@@ -39,8 +39,20 @@ const superheroes = [
   },
 ];
 
-app.get("/", (req, res) => {
-  res.send("Heroes");
+app.get("/heroes", (_req, res) => {
+  res.json(superheroes);
+});
+
+app.get("/heroes/:name", (req, res) => {
+  const hero = superheroes.find((hero) => {
+    return req.params.name === hero.name;
+  });
+  res.json(hero);
+});
+
+// ERROR
+app.get("*", (req, res) => {
+  res.status(404).send("Page not found - 404");
 });
 
 app.listen(PORT, (err) => {
