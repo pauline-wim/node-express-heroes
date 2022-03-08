@@ -1,6 +1,6 @@
-var express = require("express");
-var app = express();
-var PORT = 8000;
+const express = require("express");
+const app = express();
+const PORT = 8000;
 
 app.use(express.json());
 
@@ -11,6 +11,16 @@ app.use((req, res, next) => {
 
 const mid = (req, res, next) => {
   console.log("Ok, héros ajouté");
+  next();
+};
+
+const transformName = (req, res, next) => {
+  if (req.body.name) {
+    superheroes.push({
+      name: req.body.name.toLowerCase(),
+      power: req.body.power,
+    });
+  }
   next();
 };
 
@@ -66,12 +76,12 @@ app.get("/heroes/:name/powers", (req, res) => {
 });
 
 // Add hero to list of superheroes
-app.post("/heroes", mid, (req, res) => {
-  superheroes.push({
-    // id: superheroes.length + 1,
-    name: req.body.name,
-    power: [req.body.power],
-  });
+app.post("/heroes", mid, transformName, (req, res) => {
+  //   superheroes.push({
+  //     // id: superheroes.length + 1,
+  //     name: req.body.name,
+  //     power: req.body.power,
+  //   });
   res.json(superheroes);
 });
 
