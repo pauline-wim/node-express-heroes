@@ -85,6 +85,16 @@ app.post("/heroes", mid, transformName, (req, res) => {
   res.json(superheroes);
 });
 
+// Add a power to one of the heroes of the list
+app.patch("/heroes/:name/powers", (req, res) => {
+  console.log(`Added power to ${req.params.name} : ${req.body.power}`);
+  const powers = superheroes.find((hero) => {
+    return req.params.name === hero.name;
+  });
+  const newPowers = powers.power.push(req.body.power);
+  res.json(powers.power);
+});
+
 // ERROR
 app.get("*", (req, res) => {
   res.status(404).send("Page not found - 404");
