@@ -2,25 +2,34 @@ const express = require("express");
 const app = express();
 const PORT = 8000;
 
-app.use(express.json());
-
-app.use((req, res, next) => {
-  console.log("debug");
+// MIDDLEWARES
+const debug = (_req, _res, next) => {
+  console.log("Request received");
   next();
-});
+};
 
-const mid = (req, res, next) => {
+app.use(express.json(), debug);
+
+const mid = (_req, _res, next) => {
   console.log("Ok, héros ajouté");
   next();
 };
 
-const transformName = (req, res, next) => {
+const transformName = (req, _res, next) => {
   if (req.body.name) {
-    superheroes.push({
-      name: req.body.name.toLowerCase(),
-      power: req.body.power,
-    });
+    req.body.name = req.body.name.toLowerCase();
   }
+  next();
+};
+
+const findHero = (req, res, next) => {
+  const hero = superheroes.find((hero) => {
+    return (
+      req.params.name.toLowerCase().replace(" ", "-") ===
+      hero.name.toLowerCase().replace(" ", "-")
+    );
+  });
+  req.hero = hero;
   next();
 };
 
@@ -60,39 +69,26 @@ app.get("/heroes", (_req, res) => {
 });
 
 // Get heroes by name
-app.get("/heroes/:name", (req, res) => {
-  const hero = superheroes.find((hero) => {
-    return req.params.name === hero.name;
-  });
-  res.json(hero);
+app.get("/heroes/:name", findHero, (req, res) => {
+  res.json(req.hero);
 });
 
 // Get hero's powers
-app.get("/heroes/:name/powers", (req, res) => {
-  const powers = superheroes.find((hero) => {
-    return req.params.name === hero.name;
-  });
-  res.json(powers.power);
+app.get("/heroes/:name/powers", findHero, (req, res) => {
+  res.json(req.hero.power);
 });
 
 // Add hero to list of superheroes
 app.post("/heroes", mid, transformName, (req, res) => {
-  //   superheroes.push({
-  //     // id: superheroes.length + 1,
-  //     name: req.body.name,
-  //     power: req.body.power,
-  //   });
-  res.json(superheroes);
+  superheroes.push(req.body);
+  res.status(201).json(superheroes);
 });
 
 // Add a power to one of the heroes of the list
-app.patch("/heroes/:name/powers", (req, res) => {
+app.patch("/heroes/:name/powers", findHero, (req, res) => {
+  req.hero.power.push(req.body.power);
+  res.json(req.hero.power);
   console.log(`Added power to ${req.params.name} : ${req.body.power}`);
-  const powers = superheroes.find((hero) => {
-    return req.params.name === hero.name;
-  });
-  const newPowers = powers.power.push(req.body.power);
-  res.json(powers.power);
 });
 
 // ERROR
